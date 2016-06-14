@@ -38,6 +38,7 @@ Feature: Solve
 		And  I enter the jumble "COBOL"
 		
 		Then the output should include "You win"
+		And  it should include "To teach me a new word, prefix it with '+:'"
 		
 
 	Scenario: Solve for multiple words

@@ -13,8 +13,11 @@ public class JumbleSolver {
 
 	private Map<String, List<String>> knownWords = new HashMap<String, List<String>>();
 	
+	private   static final String DEFAULT_WORD_FILE = "corncob_caps.txt";
 	protected static final String ACK_NEW_WORD = "Ok, got it.";
-	protected static final String SURRENDER = "I got nuthin'.  You win.";
+	protected static final String ALREADY_KNOW = "I already know that word.";
+	protected static final String SURRENDER = "I got nuthin'.  You win.\n" + 
+											  "(To teach me a new word, prefix it with '+:')";
 	protected static final String GOOD_BYE = "Thanks for playing!  Goodbye.";
 	
 	protected JumbleSolver() {
@@ -38,12 +41,21 @@ public class JumbleSolver {
 		
 	}
 	protected String learnWord(String word) {
+//		System.out.println("Considering learning word, '" + word + "'");
 		String key = makeKey(word);
 		if (! knownWords.containsKey(key)) {
 			knownWords.put(key, new ArrayList<String>());
 		}
+		if (alreadyKnow(word, key)) {
+			return ALREADY_KNOW;
+		}
 		knownWords.get(key).add(word);
 		return ACK_NEW_WORD;
+	}
+
+	private boolean alreadyKnow(String word, String key) {
+		String knownAnagrams = String.join(", ", knownWords.get(key));
+		return knownAnagrams.toUpperCase().contains(word.toUpperCase());
 	}
 	
 	protected String makeKey(String word) {
@@ -54,24 +66,18 @@ public class JumbleSolver {
 	
 	public String solve(String jumble) {
 		List<String> solutions = knownWords.get(makeKey(jumble));
-		StringBuilder result = new StringBuilder();
-		if (solutions != null) {
-			for (String word : solutions) {
-				result.append(word).append(' ');
-			}
+		if (solutions == null || solutions.isEmpty()) {
+			return(SURRENDER);
 		}
-		else {
-			result.append(SURRENDER);
-		}
-		return result.toString().trim();
+		return String.join(" ", solutions);
 	}
 	
 	protected String handleInput(String jumble) {
 		if (jumble == null || jumble.length() == 0) {
 			return GOOD_BYE;
 		} 
-		else if (jumble.startsWith("+") && jumble.length() >1) {
-				String newWord = jumble.substring(1);
+		else if (jumble.startsWith("+:") && jumble.length() >2) {
+				String newWord = jumble.substring(2);
 				return learnWord(newWord);
 		}
 		else {
@@ -80,10 +86,11 @@ public class JumbleSolver {
 
 	}
 	
-	public static BufferedReader getReaderForFileName(String fileName) {
+	private static BufferedReader getReaderForFileName(String fileName) {
 		return new BufferedReader( new InputStreamReader(
 						JumbleSolver.class.getClassLoader().getResourceAsStream(fileName)));
 	}
+	
 	public static void main(String[] args ) throws IOException {
 		// Default to big word list, just in case args[0] doesn't work out
 		String wordFileName = "corncob_caps.txt";

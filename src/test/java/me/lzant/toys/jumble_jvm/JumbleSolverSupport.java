@@ -10,7 +10,7 @@ public class JumbleSolverSupport {
 		List<String> result = new ArrayList<String>();
 		StringTokenizer tokenizer = new StringTokenizer(wordList, ", ");
 		while (tokenizer.hasMoreTokens()) {
-			result.add(tokenizer.nextToken().toUpperCase());
+			result.add(tokenizer.nextToken());
 		}
 		
 		return result;
