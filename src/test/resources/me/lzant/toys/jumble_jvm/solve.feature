@@ -1,14 +1,5 @@
 Feature: Solve
 
-#	Scenario: Display instructions
-	
-#		Given the known word JUMBLE
-		
-#		When the JumbleSolver is run
-		
-#		Then the output should include "Ok, ready."
-		
-
 	Scenario: Exit
 	
 		Given the known words BASIC, C#, CLOJURE, GROOVY, JAVA, RUBY, SCALA
@@ -17,7 +8,6 @@ Feature: Solve
 		And  I enter an empty string
 		
 		Then the program should thank the user 
-#		And  it should exit normally
 		
 
 	Scenario: Solve for a single word

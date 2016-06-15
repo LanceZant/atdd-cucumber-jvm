@@ -19,7 +19,6 @@ public class JumbleSolverSteps {
 
 	@Given("^the known words? (,?[^\b]+)+$")
 	public void theKnownWords(String knownWords) throws Throwable {
-		System.out.println("==> StepDef: theKnownWords(" + knownWords.getClass().getSimpleName() + ": [" + knownWords.toString() + "])");
 		List<String> knownWordList = JumbleSolverSupport.stringToList(knownWords);
 		for (String word : knownWordList) {
 			theSolver.learnWord(word);
@@ -66,7 +65,6 @@ public class JumbleSolverSteps {
 
 	@When("^(?:when )?I enter ?(?:the jumble)? \"([^\"]*)\"$")
 	public void iEnterTheJumble(String jumble) throws Throwable {
-		System.out.println("==> StepDef: iEnterTheJumble(" + jumble + ")");
 		solution = theSolver.handleInput(jumble);
 	}
 

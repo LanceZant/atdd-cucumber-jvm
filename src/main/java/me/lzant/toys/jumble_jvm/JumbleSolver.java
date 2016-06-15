@@ -2,6 +2,7 @@ package me.lzant.toys.jumble_jvm;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,7 +14,7 @@ public class JumbleSolver {
 
 	private Map<String, List<String>> knownWords = new HashMap<String, List<String>>();
 	
-	private   static final String DEFAULT_WORD_FILE = "corncob_caps.txt";
+	protected static final String DEFAULT_WORD_FILE = "corncob_caps.txt";
 	protected static final String ACK_NEW_WORD = "Ok, got it.";
 	protected static final String ALREADY_KNOW = "I already know that word.";
 	protected static final String SURRENDER = "I got nuthin'.  You win.\n" + 
@@ -40,6 +41,11 @@ public class JumbleSolver {
 		}
 		
 	}
+	
+	public String getInstructions() {
+		return "Ok, ready.\n  Enter JUMBLEs one at a time.\n  Enter an empty value to quit.\n";
+	}
+	
 	protected String learnWord(String word) {
 //		System.out.println("Considering learning word, '" + word + "'");
 		String key = makeKey(word);
@@ -83,7 +89,6 @@ public class JumbleSolver {
 		else {
 			return solve(jumble);
 		}
-
 	}
 	
 	private static BufferedReader getReaderForFileName(String fileName) {
@@ -92,33 +97,12 @@ public class JumbleSolver {
 	}
 	
 	public static void main(String[] args ) throws IOException {
-		// Default to big word list, just in case args[0] doesn't work out
-		String wordFileName = "corncob_caps.txt";
-		BufferedReader wordReader = null;
 		
-		if (args != null && args.length > 0 && args[0] != null) {
-			try {
-			BufferedReader classPathWordReader = getReaderForFileName(args[0]);
-					
-			if (classPathWordReader != null) {
-				wordReader = classPathWordReader;
-				wordFileName = args[0];
-			}
-			}
-			catch (NullPointerException e) {
-				System.out.println("No luck finding word file " + args[0]);
-			}
-		}
-
-		if (wordReader == null) {
-			wordReader = getReaderForFileName(wordFileName);
-		}
-		
-		System.out.println("Getting word list from " + wordFileName);
-		JumbleSolver theSolver = new JumbleSolver(wordReader);
-		
-		System.out.println("Ok, ready.\n  Enter JUMBLEs one at a time.\n  Enter an empty value to quit.\n");
+		JumbleSolver theSolver = new JumbleSolver(getReaderForFileName(DEFAULT_WORD_FILE));
 		BufferedReader jumbleReader = new BufferedReader(new InputStreamReader(System.in));
+		
+		System.out.println(theSolver.getInstructions());
+		
 		while (true) {
 			String jumble = jumbleReader.readLine();
 			String result = theSolver.handleInput(jumble);
