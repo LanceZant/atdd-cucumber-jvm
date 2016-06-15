@@ -2,7 +2,6 @@ package me.lzant.toys.jumble_jvm;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,10 +14,7 @@ public class JumbleSolver {
 	private Map<String, List<String>> knownWords = new HashMap<String, List<String>>();
 	
 	protected static final String DEFAULT_WORD_FILE = "corncob_caps.txt";
-	protected static final String ACK_NEW_WORD = "Ok, got it.";
-	protected static final String ALREADY_KNOW = "I already know that word.";
-	protected static final String SURRENDER = "I got nuthin'.  You win.\n" + 
-											  "(To teach me a new word, prefix it with '+:')";
+	protected static final String SURRENDER = "I got nuthin'.  You win.";
 	protected static final String GOOD_BYE = "Thanks for playing!  Goodbye.";
 	
 	protected JumbleSolver() {
@@ -46,24 +42,15 @@ public class JumbleSolver {
 		return "Ok, ready.\n  Enter JUMBLEs one at a time.\n  Enter an empty value to quit.\n";
 	}
 	
-	protected String learnWord(String word) {
+	protected void learnWord(String word) {
 //		System.out.println("Considering learning word, '" + word + "'");
 		String key = makeKey(word);
 		if (! knownWords.containsKey(key)) {
 			knownWords.put(key, new ArrayList<String>());
 		}
-		if (alreadyKnow(word, key)) {
-			return ALREADY_KNOW;
-		}
 		knownWords.get(key).add(word);
-		return ACK_NEW_WORD;
 	}
 
-	private boolean alreadyKnow(String word, String key) {
-		String knownAnagrams = String.join(", ", knownWords.get(key));
-		return knownAnagrams.toUpperCase().contains(word.toUpperCase());
-	}
-	
 	protected String makeKey(String word) {
 		char [] chars = word.toUpperCase().toCharArray();
 	    Arrays.sort(chars);
@@ -82,10 +69,6 @@ public class JumbleSolver {
 		if (jumble == null || jumble.length() == 0) {
 			return GOOD_BYE;
 		} 
-		else if (jumble.startsWith("+:") && jumble.length() >2) {
-				String newWord = jumble.substring(2);
-				return learnWord(newWord);
-		}
 		else {
 			return solve(jumble);
 		}
