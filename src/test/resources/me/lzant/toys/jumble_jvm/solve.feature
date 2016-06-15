@@ -1,15 +1,5 @@
 Feature: Solve
 
-	Scenario: Exit
-	
-		Given the known words BASIC, C#, CLOJURE, GROOVY, JAVA, RUBY, SCALA
-		
-		When the JumbleSolver is run
-		And  I enter an empty string
-		
-		Then the program should thank the user 
-		
-
 	Scenario: Solve for a single word
 	
 		Given the known words BASIC, C#, CLOJURE, GROOVY, JAVA, LISP, RUBY, SCALA
@@ -42,4 +32,14 @@ Feature: Solve
 		And  it should include "TAME"
 		And  it should include "TEAM"
 		And  it should include "META"
+		
+
+	Scenario: Exit
+	
+		Given the known words BASIC, C#, CLOJURE, GROOVY, JAVA, RUBY, SCALA
+		
+		When the JumbleSolver is run
+		And  I enter an empty string
+		
+		Then the program should thank the user
 		
