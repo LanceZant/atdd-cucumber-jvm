@@ -36,10 +36,8 @@ Feature: Solve
 
 	Scenario: Exit
 	
-		Given the known words BASIC, C#, CLOJURE, GROOVY, JAVA, RUBY, SCALA
-		
-		When the JumbleSolver is run
-		And  I enter an empty string
+		Given the JumbleSolver is run
+		When  I enter an empty string
 		
 		Then the program should thank the user
 		
