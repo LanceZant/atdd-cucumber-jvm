@@ -43,17 +43,12 @@ public class JumbleSolver {
 		return "Ok, ready.\n  Enter JUMBLEs one at a time.\n  Enter an empty value to quit.\n";
 	}
 	
-	protected String learnWord(String word) {
-//		System.out.println("Considering learning word, '" + word + "'");
+	protected void learnWord(String word) {
 		String key = makeKey(word);
 		if (! knownWords.containsKey(key)) {
 			knownWords.put(key, new ArrayList<String>());
 		}
-		if (alreadyKnow(word, key)) {
-			return ALREADY_KNOW;
-		}
 		knownWords.get(key).add(word);
-		return ACK_NEW_WORD;
 	}
 
 	private boolean alreadyKnow(String word, String key) {
