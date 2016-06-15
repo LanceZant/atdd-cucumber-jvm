@@ -17,8 +17,7 @@ public class JumbleSolver {
 	protected static final String DEFAULT_WORD_FILE = "corncob_caps.txt";
 	protected static final String ACK_NEW_WORD = "Ok, got it.";
 	protected static final String ALREADY_KNOW = "I already know that word.";
-	protected static final String SURRENDER = "I got nuthin'.  You win.\n" + 
-											  "(To teach me a new word, prefix it with '+:')";
+	protected static final String SURRENDER = "I got nuthin'.  You win.\n";
 	protected static final String GOOD_BYE = "Thanks for playing!  Goodbye.";
 	
 	protected JumbleSolver() {
@@ -82,10 +81,6 @@ public class JumbleSolver {
 		if (jumble == null || jumble.length() == 0) {
 			return GOOD_BYE;
 		} 
-		else if (jumble.startsWith("+:") && jumble.length() >2) {
-				String newWord = jumble.substring(2);
-				return learnWord(newWord);
-		}
 		else {
 			return solve(jumble);
 		}
