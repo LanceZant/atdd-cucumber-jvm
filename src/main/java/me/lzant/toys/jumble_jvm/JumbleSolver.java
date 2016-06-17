@@ -43,7 +43,6 @@ public class JumbleSolver {
 	}
 	
 	protected void learnWord(String word) {
-//		System.out.println("Considering learning word, '" + word + "'");
 		String key = makeKey(word);
 		if (! knownWords.containsKey(key)) {
 			knownWords.put(key, new ArrayList<String>());
