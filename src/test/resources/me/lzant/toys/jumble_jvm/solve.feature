@@ -31,7 +31,7 @@ Feature: Solve
 		And  it should include "TAME"
 		And  it should include "TEAM"
 		And  it should include "META"
-		
+
 
 	Scenario: Exit
 	

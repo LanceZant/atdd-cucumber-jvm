@@ -87,7 +87,7 @@ public class JumbleSolverTest {
 		String actual = solver.handleInput("");
 		
 		// Assert
-		assertEquals(expected, actual);
+		assertContains(expected, actual);
 	}
 
 	@Test
