@@ -1,9 +1,10 @@
 package me.lzant.toys.jumble_jvm;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -11,8 +12,6 @@ import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.mockito.Mockito.*;
 
 public class JumbleSolverTest {
 
@@ -67,6 +66,18 @@ public class JumbleSolverTest {
 	}
 	
 	@Test
+	public void testSolveStumped() {
+		// Arrange
+		JumbleSolver solver = new JumbleSolver();
+		
+		// Act
+		String actual = solver.solve("unknown");
+		
+		// Assert
+		assertContains("You win", actual);
+	}
+	
+	@Test
 	public void testHandleInputExit() {
 		// Arrange
 		JumbleSolver solver = new JumbleSolver();
@@ -91,7 +102,11 @@ public class JumbleSolverTest {
 		String actual = spySolver.handleInput(jumble);
 		
 		// Assert
-		verify(spySolver);					// Make sure we made the expected call...
 		assertEquals(expected, actual);		// ...and faithfully passed along the result
+	}
+	
+	public void assertContains(String expected, String actual) {
+		assertTrue(String.format("Output[%s] should contain [%s]", actual, expected), 
+				actual.contains(expected));
 	}
 }
