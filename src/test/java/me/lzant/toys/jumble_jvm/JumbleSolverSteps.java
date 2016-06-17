@@ -57,12 +57,6 @@ public class JumbleSolverSteps {
 		solution = theSolver.handleInput("");
 	}
 
-	@Then("^the JumbleSolver should display \"([^\"]*)\" and exit normally$")
-	public void theJumbleSolverShouldDisplayAndExitNormally(String arg1) throws Throwable {
-		// Write code here that turns the phrase above into concrete actions
-		throw new PendingException();
-	}
-
 	@When("^(?:when )?I enter ?(?:the jumble)? \"([^\"]*)\"$")
 	public void iEnterTheJumble(String jumble) throws Throwable {
 		solution = theSolver.handleInput(jumble);
