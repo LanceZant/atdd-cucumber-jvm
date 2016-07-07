@@ -95,20 +95,71 @@ public class JumbleSolverTest {
 		assertEquals(expected, actual);		// ...and faithfully passed along the result
 	}
 	
-
 	@Test
 	public void testHandleInputWordToLearn() {
 		// Arrange
-		JumbleSolver solver = new JumbleSolver();
-		String newWord = "Spectralink";
+		JumbleSolver spySolver = spy(JumbleSolver.class);
+		String newWord = "theJumble";
 		String input = "+:" + newWord;
-		String expected = "Ok, got it.";
+		String expected = JumbleSolver.ACK_NEW_WORD;
+		when(spySolver.learnWord(newWord)).thenReturn(expected);
 		
 		// Act
-		String actual = solver.handleInput(input);
+		String actual = spySolver.handleInput(input);
 		
 		// Assert
-		assertEquals(expected, actual);	
+//		verify(spySolver).learnWord(newWord);	// Make sure we made the expected call...
+		assertEquals(expected, actual);			// ...and faithfully passed along the result
 	}
 	
+	@Test
+	public void testHandleInputDontLearnDuplicateWord() {
+		// Arrange
+		JumbleSolver spySolver = spy(JumbleSolver.class);
+		String newWord = "theJumble";
+		String input = "+:" + newWord;
+		String expected = JumbleSolver.ALREADY_KNOW;
+		when(spySolver.learnWord(newWord)).thenReturn(expected);
+		
+		// Act
+		String actual = spySolver.handleInput(input);
+		
+		// Assert
+		assertEquals(expected, actual);			// Make sure we faithfully passed along the result
+	}
+	
+	@Test
+	public void testLearnWordDontLearnDuplicateWord() {
+		// Arrange
+		JumbleSolver solver = new JumbleSolver();
+		String newWord = "jumble";
+		String key = solver.makeKey(newWord);
+		solver.learnWord(newWord);
+		String expected = JumbleSolver.ALREADY_KNOW;
+		
+		// Act
+		String actual = solver.learnWord(newWord);  // again
+		
+		// Assert
+		assertEquals("Wrong response to teach duplicate word, '" + newWord, 
+				expected, actual);
+	}
+
+	@Test
+	public void testLearnWordIgnoreCaseForDuplicateWords() {
+		// Arrange
+		JumbleSolver solver = new JumbleSolver();
+		String newWord = "jumble";
+		String upcasedNewWord = newWord.toUpperCase();
+		String key = solver.makeKey(newWord);
+		solver.learnWord(newWord);
+		String expected = JumbleSolver.ALREADY_KNOW;
+		
+		// Act
+		String actual = solver.learnWord(upcasedNewWord); 
+		
+		// Assert
+		assertEquals("Wrong response to teach duplicate word, '" + newWord, 
+				expected, actual);
+	}
 }

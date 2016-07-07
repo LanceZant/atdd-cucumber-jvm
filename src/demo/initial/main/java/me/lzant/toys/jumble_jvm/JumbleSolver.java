@@ -15,8 +15,7 @@ public class JumbleSolver {
 	private Map<String, List<String>> knownWords = new HashMap<String, List<String>>();
 	
 	protected static final String DEFAULT_WORD_FILE = "corncob_caps.txt";
-	protected static final String SURRENDER = "I got nuthin'.  You win.\n" + 
-			  "(To teach me a new word, prefix it with '+:')";
+	protected static final String SURRENDER = "I got nuthin'.  You win.\n";
 	protected static final String GOOD_BYE = "Thanks for playing!  Goodbye.";
 	
 	protected JumbleSolver() {
@@ -52,11 +51,6 @@ public class JumbleSolver {
 		knownWords.get(key).add(word);
 	}
 
-	private boolean alreadyKnow(String word, String key) {
-		String knownAnagrams = String.join(", ", knownWords.get(key));
-		return knownAnagrams.toUpperCase().contains(word.toUpperCase());
-	}
-	
 	protected String makeKey(String word) {
 		char [] chars = word.toUpperCase().toCharArray();
 	    Arrays.sort(chars);
@@ -75,11 +69,6 @@ public class JumbleSolver {
 		if (jumble == null || jumble.length() == 0) {
 			return GOOD_BYE;
 		} 
-		else if (jumble.startsWith("+:") && jumble.length() >2) {
-			String newWord = jumble.substring(2);
-			learnWord(newWord);
-			return "Ok, got it.";
-		}
 		else {
 			return solve(jumble);
 		}

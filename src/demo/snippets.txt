@@ -1,0 +1,281 @@
+0.	Set-up
+	A.	Check out & replace src/(main|test)/* with src/demo/initial/*
+	B.	Open in eclipse:
+		1.	solve.feature
+		2.	JumbleSolverSteps.java
+		3.	JumbleSolverTest.java
+		4.	JumbleSolver.java
+		5.	snippets.txt
+I.  Intro:  Build & run
+	A.	Build:  mvn clean package
+		1.	Scroll up to the Gherkin Echo & point out how it documents features
+		2.	Point out that green == pass
+	B.	Run:  ./jumble.sh
+		1.	Point out the instructions
+		2.	Enter "obok" and show "BOOK"
+		3.	Enter "demo" and show "DEMO DOME MODE"
+		4.	Ask for a word from audience, or use "morphometasis"
+		5.	Enter "Spectralink" and show "I got nuthin'. You win."
+		6.	Enter "+:Spectralink", show "You win" and state goal of learning a new word.
+	C.	TIME CHECK: 20 min.
+	
+II.	Drive enhancement w/ ATDD:1.  Offer to learn new word:
+	A.	How should user know to to this?  Let's add a prompt.
+		1.	When we stump the solver, make it tell us we can teach it a new word.
+		2.	In solve.feature, add step:
+
+			And it should include "teach me a new word"
+			
+		3.	Build & note failure
+		4.	Implement:  In JumbleSolver.java, append to SURRENDER message text:
+
+			protected static final String SURRENDER = "I got nuthin'.  You win.\n" + 
+											  "(To teach me a new word, prefix it with '+:')";
+		
+		5.	Build and note tests are again green.	
+
+	B.	Scenario:  Learn a new word:
+		1.  Acknowledge New Word:
+			a)  OUTSIDE-IN Cucumber Test:
+				1)  Create learn.feature, and initialize with:
+					Feature: Learn a new word
+				
+					Scenario: Learn a new word when prefixed with a plus sign and colon 
+					
+						Given the known words BASIC, C#, Clojure, Groovy, Java, LISP, Ruby, Scala		
+						When  I enter the new word "FORTRAN"
+						Then  the output should include "Ok, got it."
+				
+						And   when I enter "tranfor"
+						Then  the output should include "FORTRAN"
+				2)  Define the new step "...enter a new word..."
+		
+					@When("^(?:when )?I enter ?(?:the )?new word \"([^\"]*)\"$")
+					public void iEnterTheNewWord(String newWord) throws Throwable {
+						solution = theSolver.handleInput("+:" + newWord);
+					}
+		
+			b)	Down-shift to Unit TDD: handleInput(<newWord>) (1st cut:  just look for the output)
+				1)  The test
+				@Test
+				public void testHandleInputWordToLearn() {
+					// Arrange
+					JumbleSolver solver = new JumbleSolver();
+					String newWord = "Spectralink";
+					String input = "+:" + newWord;
+					String expected = "Ok, got it.";
+					
+					// Act
+					String actual = spySolver.handleInput(input);
+					
+					// Assert
+					assertEquals(expected, actual);
+				}
+				
+				2)  Implement the solution
+		
+					//  1st Cut:  Parse +:<new word> in handleInput():
+					else if (jumble.startsWith("+:") && jumble.length() >2) {
+						String newWord = jumble.substring(2);
+						learnWord(newWord);
+						return "Ok, got it.";
+					}
+
+	C.	Scenario:  Don't learn a duplicate word
+		0.	Run from console & demonstrate duplication
+		
+		1.  Outside-in Cucumber Test:
+			a.	New Scenario:
+
+				Scenario: Don't Learn a duplicate word
+				
+					Given the known words BASIC, C#, Clojure, Groovy, Java, LISP, Ruby, Scala		
+					When  I enter the new word "Groovy"
+					Then  the output should include "I already know that word."
+		
+			b.  Note failure 
+			c.	Inspect code:  Note that duplicate would be best detected in learnWord( ), 
+				but handleInput( ) currently sets the return value.  
+				
+		2.	TIME TO REFACTOR!  Formulate response in learnWord rather than handleInput()
+			a.  Move output message ("Ok, got it.") from literal to constant
+			
+				protected static final String ACK_NEW_WORD = "Ok, got it.";
+				
+				protected String learnWord(String word) {
+					...
+					return ACK_NEW_WORD;
+				
+			b.	Run Unit Tests:  GREEN!  (That didn't hurt, did it?)
+			c.	Move return ACK_NEW_WORD from handleInput( ) to learnWord( ) and 
+				change learnWord( ) return type from void to String.
+			d.	Run Unit Tests:  GREEN!  NOW we're ready to tackle the new feature!
+		
+		3.	Add unit test to verify learnWord( ) blocks duplicate words with "already know that word"
+			a.  The test:
+				@Test
+				public void testLearnWordDontLearnDuplicateWord() {
+					// Arrange
+					String expected = JumbleSolver.ALREADY_KNOW;
+					JumbleSolver solver = new JumbleSolver();
+					String newWord = "jumble";
+					String key = solver.makeKey(newWord);
+					solver.learnWord(newWord);
+					
+					// Act
+					String actual = solver.learnWord(newWord);  // again
+					
+					// Assert
+					assertEquals("Wrong response to teach duplicate word, '" + newWord, 
+							expected, actual);
+				}
+
+			b.	Run.  RED: NOW we implement!
+
+		4.	Implement with code that expresses our intent.
+				1)	Guard adding new word with test of alreadyKnow(word, key)
+					
+					if (alreadyKnow(word, key)) {
+						return "I already know that word.";
+					}
+					
+				2)	Implement alreadyKnow():
+
+					private boolean alreadyKnow(String word, String key) {
+						String knownAnagrams = String.join(", ", knownWords.get(key));
+						return knownAnagrams.toUpperCase().contains(word.toUpperCase());
+					}
+	
+				3)	Run Unit Tests:  GREEN!
+		5.	Refactor:  Replace "...already know..." literal with constant
+			a.	Define ALREADY_KNOW:
+				
+				protected static final String ALREADY_KNOW = "I already know that word.";
+				
+			b.	Replace literal with reference:
+				
+				return ALREADY_KNOW;
+				
+			c.	Run Unit Tests:  GREEN!
+			
+		6.	Run ACCEPTANCE Tests:  GREEN!
+		
+		7.  *** DONE! ***		
+				
+			
+	
+JumbleSolver.java:
+	//  When learnWord() needs to return outcome:
+	protected static final String ACK_NEW_WORD = "Ok, got it.";
+	protected static final String ALREADY_KNOW = "I already know that word.";
+
+	protected String learnWord(String word) {
+		...
+		return ACK_NEW_WORD;
+	
+	//  Check for word already known in learnWord():
+		if (alreadyKnow(word, key)) {
+			return ALREADY_KNOW;
+		}
+
+	//  When parsing +:<new word> in handleInput():
+		else if (jumble.startsWith("+:") && jumble.length() >2) {
+				String newWord = jumble.substring(2);
+				return learnWord(newWord);
+		}
+		
+JumbleSolverTest.java:
+
+	// First cut:  just look for the output.
+	@Test
+	public void testHandleInputWordToLearn() {
+		// Arrange
+		JumbleSolver solver = new JumbleSolver();
+		String newWord = "Spectralink";
+		String input = "+:" + newWord;
+		String expected = "Ok, got it.";
+		
+		// Act
+		String actual = spySolver.handleInput(input);
+		
+		// Assert
+		assertEquals(expected, actual);			// ...and faithfully passed along the result
+	}
+
+	// Refactor(1):  Formulate response in learnWord rather than handleInput()
+	a)  Move output message ("Ok, got it.") from literal to constant
+	protected static final String ACK_NEW_WORD = "Ok, got it.";
+
+	// Refactor(2):  Return result from learnWord() rather than directly from handleInput()
+	@Test
+	public void testHandleInputWordToLearn() {
+		// Arrange
+		JumbleSolver spySolver = spy(JumbleSolver.class);
+		String newWord = "theJumble";
+		String input = "+:" + newWord;
+		String expected = "Ok, got it.";
+		when(spySolver.learnWord(newWord)).thenReturn(expected);
+		
+		// Act
+		String actual = spySolver.handleInput(input);
+		
+		// Assert
+//		verify(spySolver).learnWord(newWord);	// Make sure we made the expected call...
+		assertEquals(expected, actual);			// ...and faithfully passed along the result
+	}
+
+	// Refactor literal to constant:
+	protected static final String ACK_NEW_WORD = "Ok, got it.";
+		String expected = JumbleSolver.ACK_NEW_WORD;
+	
+	
+	@Test
+	public void testHandleInputDontLearnDuplicateWord() {
+		// Arrange
+		JumbleSolver spySolver = spy(JumbleSolver.class);
+		String newWord = "theJumble";
+		String input = "+:" + newWord;
+		String expected = JumbleSolver.ALREADY_KNOW;
+		when(spySolver.learnWord(newWord)).thenReturn(expected);
+		
+		// Act
+		String actual = spySolver.handleInput(input);
+		
+		// Assert
+		assertEquals(expected, actual);			// Make sure we faithfully passed along the result
+	}
+	
+	@Test
+	public void testLearnWordDontLearnDuplicateWord() {
+		// Arrange
+		JumbleSolver solver = new JumbleSolver();
+		String newWord = "jumble";
+		String key = solver.makeKey(newWord);
+		solver.learnWord(newWord);
+		String expected = JumbleSolver.ALREADY_KNOW;
+		
+		// Act
+		String actual = solver.learnWord(newWord);  // again
+		
+		// Assert
+		assertEquals("Wrong response to teach duplicate word, '" + newWord, 
+				expected, actual);
+	}
+
+	@Test
+	public void testLearnWordIgnoreCaseForDuplicateWords() {
+		// Arrange
+		JumbleSolver solver = new JumbleSolver();
+		String newWord = "jumble";
+		String upcasedNewWord = newWord.toUpperCase();
+		String key = solver.makeKey(newWord);
+		solver.learnWord(newWord);
+		String expected = JumbleSolver.ALREADY_KNOW;
+		
+		// Act
+		String actual = solver.learnWord(upcasedNewWord); 
+		
+		// Assert
+		assertEquals("Wrong response to teach duplicate word, '" + newWord, 
+				expected, actual);
+	}
